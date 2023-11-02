@@ -6,7 +6,7 @@ Softwares and Platform Requirements
 2. Docker
 3. VS Code
 3. Git and Github
-4. Heroku
+4. GCP App Engine
 
 
 
@@ -87,3 +87,5 @@ Pushing the code to Github origin  main Repo
 ```
 git push origin main
 ```
+
+Docker Commands
