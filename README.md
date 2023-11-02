@@ -23,6 +23,16 @@ Executing the Application
 python filename.py
 ```
 
+Upgrade pip
+
+```
+python -m install pip --upgrade pip
+```
+
+Installing the required python Package
+```
+pip install <package-name>
+```
 
 Git Commands
 
