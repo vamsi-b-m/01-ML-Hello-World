@@ -23,13 +23,6 @@ Executing the Application
 python filename.py
 ```
 
-Executing a Flask Application using gunicorn
-
-```
-gunicorn --workers=4 --bind 0.0.0.0:$PORT app:app
-```
-
-
 
 Git Commands
 
