@@ -10,6 +10,6 @@ Softwares and Platform Requirements
 
 Creating a Python Virtual Environment
 
-'''
+```
 python -m venv venv
-'''
+```
