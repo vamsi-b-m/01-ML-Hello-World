@@ -9,6 +9,8 @@ Softwares and Platform Requirements
 4. Heroku
 
 
+
+
 Python Commands Required
 
 Creating a Python Virtual Environment
