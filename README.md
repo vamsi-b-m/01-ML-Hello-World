@@ -89,3 +89,11 @@ git push origin main
 ```
 
 Docker Commands
+
+```
+docker build -t <image-name:version>
+```
+
+```
+docker run -e PORT:5000 -p 5000:5000 <image-id or image-name:version>
+```
