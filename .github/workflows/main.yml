@@ -1,61 +1,123 @@
-# Github Workflow file
+# # Github Workflow file
 
-# Your workflow name.
-name: Deploy to heroku.
+# # Your workflow name.
+# name: Deploy to heroku.
 
-# Run workflow on every push to main branch.
+# # Run workflow on every push to main branch.
+# on:
+#   push:
+#     branches: [main]
+
+# # Your workflows jobs.
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # Check-out your repository.
+#       - name: Checkout
+#         uses: actions/checkout@v2
+
+
+# ### ⬇ IMPORTANT PART ⬇ ###
+
+#       - name: Build, Push and Release a Docker container to Heroku. # Your custom step name
+#         uses: gonuit/heroku-docker-deploy@v1.3.3 # GitHub action name (leave it as it is).
+#         with:
+#           # Below you must provide variables for your Heroku app.
+
+#           # The email address associated with your Heroku account.
+#           # If you don't want to use repository secrets (which is recommended) you can do:
+#           # email: my.email@example.com
+#           email: ${{ secrets.HEROKU_EMAIL }}
+          
+#           # Heroku API key associated with provided user's email.
+#           # Api Key is available under your Heroku account settings.
+#           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          
+#           # Name of the heroku application to which the build is to be sent.
+#           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+
+#           # (Optional, default: "./")
+#           # Dockerfile directory.
+#           # For example, if you have a Dockerfile in the root of your project, leave it as follows:
+#           dockerfile_directory: ./
+
+#           # (Optional, default: "Dockerfile")
+#           # Dockerfile name.
+#           dockerfile_name: Dockerfile
+
+#           # (Optional, default: "")
+#           # Additional options of docker build command.
+#           docker_options: "--no-cache"
+
+#           # (Optional, default: "web")
+#           # Select the process type for which you want the docker container to be uploaded.
+#           # By default, this argument is set to "web".
+#           # For more information look at https://devcenter.heroku.com/articles/process-model
+#           process_type: web
+          
+   
+          
+# ### ⬆ IMPORTANT PART ⬆ ###
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# GCP Deployment Workflow file
+env:
+  app-name: simple-hello-world
+  gke-cluster-name: autopilot-cluster-1
+  gke-region: asia-south2
+
+name: Deploy to GCP
+
 on:
   push:
     branches: [main]
 
-# Your workflows jobs.
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      # Check-out your repository.
       - name: Checkout
         uses: actions/checkout@v2
 
-
-### ⬇ IMPORTANT PART ⬇ ###
-
-      - name: Build, Push and Release a Docker container to Heroku. # Your custom step name
-        uses: gonuit/heroku-docker-deploy@v1.3.3 # GitHub action name (leave it as it is).
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
         with:
-          # Below you must provide variables for your Heroku app.
+          version: 'latest'
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
 
-          # The email address associated with your Heroku account.
-          # If you don't want to use repository secrets (which is recommended) you can do:
-          # email: my.email@example.com
-          email: ${{ secrets.HEROKU_EMAIL }}
-          
-          # Heroku API key associated with provided user's email.
-          # Api Key is available under your Heroku account settings.
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          
-          # Name of the heroku application to which the build is to be sent.
-          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+      - name: Configure Docker
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:latest
 
-          # (Optional, default: "./")
-          # Dockerfile directory.
-          # For example, if you have a Dockerfile in the root of your project, leave it as follows:
-          dockerfile_directory: ./
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.app-name }}:$GITHUB_SHA .
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.gke-cluster-name }}:$GITHUB_SHA
 
-          # (Optional, default: "Dockerfile")
-          # Dockerfile name.
-          dockerfile_name: Dockerfile
+      - name: Set Kubeconfig for GKE
+        run: |
+          gcloud container clusters get-credentials ${{ env.gke-cluster-name }} --region ${{ env.gke-region }}
 
-          # (Optional, default: "")
-          # Additional options of docker build command.
-          docker_options: "--no-cache"
-
-          # (Optional, default: "web")
-          # Select the process type for which you want the docker container to be uploaded.
-          # By default, this argument is set to "web".
-          # For more information look at https://devcenter.heroku.com/articles/process-model
-          process_type: web
-          
-   
-          
-### ⬆ IMPORTANT PART ⬆ ###
+      - name: Deploy to GKE
+        run: |
+          kubectl apply -f kubernetes/deployment.yaml
