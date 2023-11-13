@@ -112,7 +112,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.app-name }}:$GITHUB_SHA .
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.gke-cluster-name }}:$GITHUB_SHA
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.app-name }}:$GITHUB_SHA
 
       - name: Set Kubeconfig for GKE
         run: |
