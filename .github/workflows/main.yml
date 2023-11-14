@@ -151,7 +151,6 @@ jobs:
 
 
 
-
 # # GCP Deployment Workflow file
 # env:
 #   app-name: simple-hello-world

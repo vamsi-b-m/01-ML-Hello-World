@@ -1,0 +1,48 @@
+# In the GitHub Actions YAML, four variables,
+# PROJECT_ID, IMAGE, GITHUB_SHA, and DEPLOYMENT_NAME, are being embedded.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app-deployment
+  labels:
+    app: python-app-deplyment-label
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: DEPLOYMENT_NAME
+  template:
+    metadata:
+      labels:
+        app: DEPLOYMENT_NAME
+    spec:
+      containers:
+        - name: python-app-hello-world
+          image: gcr.io/PROJECT_ID/IMAGE_NAME:GITHUB_SHA
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+              ephemeral-storage: "1Gi"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+              ephemeral-storage: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-app-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: DEPLOYMENT_NAME
+  ports:
+    - port: 80
+      targetPort: 8080
